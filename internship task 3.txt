@@ -1,0 +1,193 @@
+#include <iostream>
+#include <string>
+using namespace std;
+// Maximum number of customers and accounts
+const int MAX_CUSTOMERS = 100;
+const int MAX_ACCOUNTS = 100;
+// Customer class
+class Customer 
+{
+    private:
+    int id;
+    string name;
+    public:
+    Customer(int id = 0, const string& name = "") : id(id), name(name) 
+    { 
+        
+    }
+    int getId() const 
+    { 
+        return id; 
+    }
+    string getName() const 
+    { 
+        return name;
+    }
+};
+
+// Account class
+class Account
+{
+private:
+    int accountId;
+    int customerId;
+    double balance;
+public:
+    Account(int accountId = 0, int customerId = 0) : accountId(accountId), customerId(customerId), balance(0.0) 
+    {
+        
+    }
+    int getAccountId() const 
+    { 
+        return accountId; 
+    }
+    int getCustomerId() const 
+    { 
+        return customerId; 
+    }
+    double getBalance() const
+    { 
+        return balance; 
+        
+    }
+    void deposit(double amount)
+    { 
+        balance=balance+amount; 
+    }
+    void withdraw(double amount)
+    {
+        if(balance>=amount)
+        {
+            balance=balance-amount;
+        } 
+        else 
+        {
+            cout<<"Insufficient balance.\n";
+        }
+    }
+};
+
+// BankingSystem class
+class BankingSystem
+{
+private:
+    Customer customers[MAX_CUSTOMERS];
+    Account accounts[MAX_ACCOUNTS];
+    int customerCount = 0;
+    int accountCount = 0;
+public:
+    void addCustomer(int id, const string& name)
+    {
+        if (customerCount<MAX_CUSTOMERS)
+        {
+            customers[customerCount++]=Customer(id, name);
+        } 
+        else 
+        {
+            cout<<"Max customer limit reached.\n";
+        }
+    }
+    void createAccount(int accountId, int customerId)
+    {
+        if (accountCount<MAX_ACCOUNTS) 
+        {
+            accounts[accountCount++]=Account(accountId, customerId);
+        }
+        else 
+        {
+            cout<<"Max account limit reached.\n";
+        }
+    }
+    void deposit(int accountId, double amount)
+    {
+        for (int i=0;i<accountCount;i++) 
+        {
+            if(accounts[i].getAccountId()==accountId)
+            {
+                accounts[i].deposit(amount);
+                return;
+            }
+        }
+        cout<<"Account not found.\n";
+    }
+   void withdraw(int accountId, double amount)
+   {
+        for (int i=0;i<accountCount;i++)
+        {
+            if(accounts[i].getAccountId()==accountId) 
+            {
+                accounts[i].withdraw(amount);
+                return;
+            }
+        }
+        cout<<"Account not found.\n";
+    }
+    void transfer(int fromAccountId, int toAccountId, double amount)
+    {
+        Account* fromAccount = nullptr;
+        Account* toAccount = nullptr;
+        for (int i=0;i<accountCount;i++) 
+        {
+            if(accounts[i].getAccountId()==fromAccountId)
+            {
+                fromAccount=&accounts[i];
+            }
+            if(accounts[i].getAccountId()==toAccountId)
+            {
+                toAccount=&accounts[i];
+            }
+        }
+       if(fromAccount && toAccount) 
+       {
+            if(fromAccount->getBalance()>=amount)
+            {
+                fromAccount->withdraw(amount);
+                toAccount->deposit(amount);
+                cout<<"Transfer successful.\n";
+            } 
+            else
+            {
+                cout<<"Insufficient balance for transfer.\n";
+            }
+        } 
+        else
+        {
+            cout<<"One or both accounts not found.\n";
+        }
+    }
+    void viewAccountInfo(int accountId) const
+    {
+        for(int i=0;i<accountCount;i++)
+        {
+            if(accounts[i].getAccountId()==accountId)
+            {
+                cout<<"Account ID: " << accounts[i].getAccountId()
+                          << ", Customer ID: " << accounts[i].getCustomerId()
+                          << ", Balance: " << accounts[i].getBalance() << "\n";
+                return;
+            }
+        }
+        cout<<"Account not found.\n";
+    }
+};
+
+int main()
+{
+    BankingSystem BS;
+    // Adding customers
+    BS.addCustomer(1, "Jaweria");
+    BS.addCustomer(2, "Amna");
+    // Creating accounts
+    BS.createAccount(101, 1);
+    BS.createAccount(102, 2);
+    // Performing banking operations
+    BS.deposit(101, 1000.0);
+    BS.withdraw(101, 100.0);
+    // Transfer money between accounts
+    BS.transfer(101, 102, 200.0);
+    // Viewing account information
+    cout<<"Account Information:\n";
+    BS.viewAccountInfo(101);
+    BS.viewAccountInfo(102);
+    return 0;
+}
